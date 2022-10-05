@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Example map</title>
+	<link rel="shortcut icon" type="image/x-icon" href="/frontend/public/favicon.ico" />
+
+	<link rel="stylesheet" type="text/css" href="/frontend/static/css/leaflet.css">
+	<script type="text/javascript" src="/frontend/static/js/leaflet.js"></script>
+
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.leaflet-container {
+			height: 400px;
+			width: 600px;
+			max-width: 100%;
+			max-height: 100%;
+		}
+	</style>
+
+
+</head>
+<body>
+
+<div id='map'></div>
+
+<script type="text/javascript" src="/frontend/static/js/eu-countries.js"></script>
+
+<script>
+	var map = L.map('map');
+
+	map.createPane('labels');
+
+	// This pane is above markers but below popups
+	map.getPane('labels').style.zIndex = 650;
+
+	// Layers in this pane are non-interactive and do not obscure mouse/touch events
+	map.getPane('labels').style.pointerEvents = 'none';
+
+	var positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
+	}).addTo(map);
+
+	var positronLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+	}).addTo(map);
+
+	/* global euCountries */
+	var geojson = L.geoJson(euCountries).addTo(map);
+
+	geojson.eachLayer(function (layer) {
+		layer.bindPopup(layer.feature.properties.name);
+	});
+
+	map.setView({lat: 47.040182144806664, lng: 9.667968750000002}, 4);
+
+	var begin_map;
+    var end_map;
+	var popup = L.popup();
+	var rectoptions = {color: "yellow", weight: 1};
+	 function onMapClick(e) {
+           popup
+               .setLatLng(e.latlng)
+               .setContent("Координата на карте " + e.latlng.toString())
+               .openOn(map);
+     }
+
+	 function onMapClickTwo(e) {
+
+              if(begin_map == null) {
+                   begin_map = e.latlng;
+                    popup.setContent("begin" + begin_map.toString());
+               }
+               else {
+                        if(end_map == null) {
+                            end_map = e.latlng;
+                            popup.setContent("end" + end_map.toString());
+                            latrec = L.rectangle([begin_map, end_map], rectoptions);
+                            latrec.addTo(map);
+                        }
+                        else {
+                            map.removeLayer(latrec);
+                            begin_map = null;
+                            end_map = null;
+                        }
+              }
+
+            }
+
+	map.on('dblclick', onMapClickTwo);
+    map.on('click', onMapClick);
+</script>
+
+
+
+</body>
+</html>

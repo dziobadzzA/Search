@@ -1,0 +1,206 @@
+{% extends "public/base.html" %}
+{% block content_title %}
+    <title>Центр данных</title>
+    <link rel="stylesheet" type="text/css" href="/frontend/static/css/leaflet.css">
+	<script type="text/javascript" src="/frontend/static/css/leaflet.js"></script>
+    <link rel="stylesheet" type="text/css" href="/frontend/src/css/map.css">
+{% endblock %}
+{% block content %}
+   <div id="sidebar">
+
+      <form method="post">
+          {% csrf_token %}
+      </form>
+      <hr>
+      <h6><strong><i>Отображение</i></strong></h6>
+      <button id="response">Таблица/Карта</button>
+   </div>
+
+   <div id="content">
+        <h3>{{ requestType }}</h3>
+
+                   <div id="table">
+                   {% if countColumn > 0 %}
+                    <button type="button" class="btn btn-info btn-sm" onclick="downloadCSV('#downloadCSV')">Экспорт таблицы в CSV</button>
+                    <br><br>
+                        <div id="scroll-table">
+                            <div class="scroll-table-body">
+                                 <table id="downloadCSV">
+                                    <thead>
+                                        <tr>
+                                        {% for c in column %}
+                                             <th class="capital">{{ c }}</th>
+                                        {% endfor %}
+                                         </tr>
+
+                                        <tr class="filter-row">
+                                            {% for c in column %}
+                                                 <td>
+                                                     <input type="text" class="filter size" onkeyup="filterHandler()" id="{{ c }}" />
+                                                 </td>
+                                            {% endfor %}
+                                        </tr>
+
+                                        {% for ext in data %}
+                                        <tr class="data-row">
+                                            {% for includeRes in ext %}
+                                            <td class="column-{{ includeRes.1 }}">
+                                                {{ includeRes.0 }}
+                                            </td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                      </thead>
+                                </table>
+                            </div>
+                       </div>
+                       {% endif %}
+                   </div>
+
+        <div id="map"></div>
+   </div>
+{% endblock %}
+{% block script %}
+         <script src="/frontend/static/js/asyncsat.js"></script>
+         <script type="text/javascript">
+
+            var begin_map;
+            var end_map;
+
+            var rectoptions = {color: "yellow", weight: 1};
+            var latrec;
+            var mymap = new L.map('map').setView([0, 0], 1);
+
+            L.tileLayer('/frontend/public/ATLAS/mapatlas/UMP-pcPL/{z}/{x}/{y}.png', {
+                    maxZoom: 10,
+                    zoomOffset: -1,
+                    minZoom: 1,
+                    tileSize: 512,
+                    center: [0,0],
+            }).addTo(mymap);
+
+            var bounds = L.latLngBounds(L.latLng(85, -180), L.latLng(-85,180))
+            mymap.setMaxBounds(bounds)
+
+            var scale = L.control.scale();
+            scale.addTo(mymap);
+
+            var layerGroup = L.layerGroup().addTo(mymap);
+            var iconUrl = "{{ map.iconUrl }}";
+
+            var fromx, fromx2;
+            var toy, toy2;
+
+            var from_info = ("{{ map.from_info }}").split(';');
+            var to_info = ("{{ map.to_info }}").split(';');
+            var filter = false;
+
+            function returnIcon(iconUrl) {
+                var templateCustom = L.icon({
+                     iconSize: [32, 48],
+                     iconAnchor: [22, 48],
+                     popupAnchor: [-3, -76],
+                     shadowSize: [68, 95],
+                     shadowAnchor: [22, 94],
+                     iconUrl:  '/frontend/src/leaflet/images/' + iconUrl
+                });
+                return templateCustom;
+            }
+
+            function addMarker(x,y, cvet, rad, opp, second, urlIcon, info, other) {
+
+                   var malunok = true;
+            for (var i = 0; i < x.length; i++) {
+
+                    if (filter == true) {
+                         if(latrec.getBounds().contains({ lat: x[i], lng: y[i] })) {
+                             malunok = true;
+                         }
+                         else {
+                             malunok = false;
+                         }
+                    }
+
+                if (malunok == true) {
+
+                            L.circle([x[i], y[i]], {
+                                         color: cvet,
+                                        fillOpacity: opp,
+                                        radius: rad
+                            }).addTo(layerGroup);
+
+                            var major = info[i].split(',');
+                            var information = "";
+
+                            if (second) {
+                                 L.marker([x[i], y[i]], {icon: returnIcon(urlIcon) }).addTo(layerGroup).bindPopup(information);
+                            }
+                            else {
+                                L.marker({ lat: x[i], lng: y[i] }).addTo(layerGroup).bindPopup(information);
+                            }
+
+                }
+             }
+             }
+
+            function filterMarker(x,y, cvet, rad, opp, second, urlIcon, info, other) {
+                filter = true
+                addMarker(fromx, toy, 'grey', 1000, 1.0, true, iconUrl, from_info, "{{ map.state }}")
+                addMarker(fromx2, toy2, 'black', 1000, 1.0, false, iconUrl, to_info, "{{ map.state }}")
+                filter = false
+            }
+
+
+            {% if countColumn > 0 %}
+             fromx = {{ map.fromx }}
+             toy = {{ map.toy }}
+             addMarker(fromx, toy, 'grey', 1000, 1.0, true, iconUrl, from_info, "{{ map.state }}")
+
+             fromx2 = {{ map.fromx2 }}
+             toy2 = {{ map.toy2 }}
+             addMarker(fromx2, toy2, 'black', 1000, 1.0, false, iconUrl, to_info, "{{ map.state }}")
+            {% endif %}
+
+
+            var popup = L.popup();
+            function onMapClick(e) {
+                  popup
+                     .setLatLng(e.latlng)
+                      .setContent("Координата на карте " + e.latlng.toString())
+                  .openOn(mymap);
+            }
+
+            function onMapClickTwo(e) {
+
+                    if(begin_map == null) {
+                        begin_map = e.latlng;
+                        popup.setContent("begin" + begin_map.toString());
+                    }
+                    else {
+
+                        if(end_map == null) {
+
+                            end_map = e.latlng;
+                            popup.setContent("end" + end_map.toString());
+
+                            latrec = L.rectangle([begin_map, end_map], rectoptions);
+                            latrec.addTo(mymap);
+
+                            layerGroup.clearLayers();
+
+                             filterMarker(fromx, toy, 'grey', 1000, 1.0, true, iconUrl, from_info, "{{ map.state }}")
+                             filterMarker(fromx2, toy2, 'black', 1000, 1.0, false, iconUrl, to_info, "{{ map.state }}")
+                        }
+                        else {
+                            mymap.removeLayer(latrec);
+                            begin_map = null;
+                            end_map = null;
+                        }
+                    }
+
+            }
+
+            mymap.on('dblclick', onMapClickTwo);
+            mymap.on('click', onMapClick);
+        </script>
+{% endblock %}
