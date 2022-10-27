@@ -44,3 +44,4 @@ class table_radio(models.Model):
     radio_device = models.ForeignKey(radio_device, on_delete=models.CASCADE)
     param_radio_device = models.ForeignKey(param_radio_device, on_delete=models.CASCADE)
     param_value = models.FloatField()
+    ship_name = models.ForeignKey(ship, on_delete=models.CASCADE)

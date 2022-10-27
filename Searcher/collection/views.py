@@ -10,5 +10,5 @@ def responseBase(request):
     return render(request, 'public/base.html')
 
 
-def responseMap(request):
+def response_map(request):
     return render(request, 'public/example.html')

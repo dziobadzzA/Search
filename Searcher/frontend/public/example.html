@@ -1,36 +1,66 @@
 <!DOCTYPE html>
+{% load static from staticfiles %}
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-
-	<title>Example map</title>
-	<link rel="shortcut icon" type="image/x-icon" href="/frontend/public/favicon.ico" />
-
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Determinant</title>
+    <link href="{% static 'public/icon.ico' %}" rel="shortcut icon" type="image/x-icon" />
 	<link rel="stylesheet" type="text/css" href="/frontend/static/css/leaflet.css">
 	<script type="text/javascript" src="/frontend/static/js/leaflet.js"></script>
-
-	<style>
-		html, body {
-			height: 100%;
-			margin: 0;
-		}
-		.leaflet-container {
-			height: 300px;
-			width: 600px;
-			max-width: 100%;
-			max-height: 100%;
-		}
-	</style>
-
-
+	<link rel="stylesheet" type="text/css" href="/frontend/static/css/style.css">
 </head>
 <body>
 
-<div id='map'></div>
+<h1>Works place our world</h1>
+<fieldset>
+	<legend><b>Data</b></legend><p>
+	<input type="file"></p>
+	<button id="combat">Put on duty</button>
+	<button id="test" class="shift_button">Test</button>
+	<button id="help" class="shift_button">Help</button>
+</fieldset>
+
+<div id='map' align='center' class="payload"></div>
+<div id="table" class="payload">
+                   {% if countColumn > 0 %}
+                    <button type="button" class="btn btn-info btn-sm" onclick="downloadCSV('#downloadCSV')">Экспорт таблицы в CSV</button>
+                    <br><br>
+                        <div id="scroll-table">
+                            <div class="scroll-table-body">
+                                 <table id="downloadCSV">
+                                    <thead>
+                                        <tr>
+                                        {% for c in column %}
+                                             <th class="capital">{{ c }}</th>
+                                        {% endfor %}
+                                         </tr>
+
+                                        <tr class="filter-row">
+                                            {% for c in column %}
+                                                 <td>
+                                                     <input type="text" class="filter size" onkeyup="filterHandler()" id="{{ c }}" />
+                                                 </td>
+                                            {% endfor %}
+                                        </tr>
+
+                                        {% for ext in data %}
+                                        <tr class="data-row">
+                                            {% for includeRes in ext %}
+                                            <td class="column-{{ includeRes.1 }}">
+                                                {{ includeRes.0 }}
+                                            </td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                      </thead>
+                                </table>
+                            </div>
+                       </div>
+                       {% endif %}
+                   </div>
 
 <script type="text/javascript" src="/frontend/static/js/eu-countries.js"></script>
-
 <script>
 	var map = L.map('map');
 
@@ -93,8 +123,6 @@
 	map.on('dblclick', onMapClickTwo);
     map.on('click', onMapClick);
 </script>
-
-
 
 </body>
 </html>

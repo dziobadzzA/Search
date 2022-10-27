@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-kh(1#==zjt7yuv_kf8b%k7s3t5y-_ghyxfkoy&pzvxb34@!8ah
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 APPEND_SLASH = False
 LOGIN_REDIRECT_URL = '/'
 
@@ -90,12 +90,12 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-        'LOCATION': '127.0.0.1:11211',
-    }
-}
+# CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+#        'LOCATION': '127.0.0.1:11211',
+#    }
+#}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
