@@ -14,11 +14,18 @@
 
 <h1>Works place our world</h1>
 <fieldset>
-	<legend><b>Data</b></legend><p>
-	<input type="file"></p>
+
+    <legend><b>Data</b></legend><p>
+
+    <form method="post">
+          {% csrf_token %}
+        <input  id="inp" type="file"></p>
+    </form>
+
 	<button id="combat">Put on duty</button>
 	<button id="test" class="shift_button">Test</button>
-	<button id="help" class="shift_button">Help</button>
+	<a href="/help/"><button id="help" class="shift_button">Help</button></a>
+
 </fieldset>
 
 <div id='map' align='center' class="payload"></div>
@@ -60,7 +67,9 @@
                        {% endif %}
                    </div>
 
-<script type="text/javascript" src="/frontend/static/js/eu-countries.js"></script>
+
+<script src="/frontend/static/js/jquery-3.6.1.min.js"></script>
+<script src="/frontend/static/js/async_.js"></script>
 <script>
 	var map = L.map('map');
 
@@ -77,13 +86,6 @@
 
 	var positronLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
 	}).addTo(map);
-
-	/* global euCountries */
-	var geojson = L.geoJson(euCountries).addTo(map);
-
-	geojson.eachLayer(function (layer) {
-		layer.bindPopup(layer.feature.properties.name);
-	});
 
 	map.setView({lat: 47.040182144806664, lng: 9.667968750000002}, 4);
 

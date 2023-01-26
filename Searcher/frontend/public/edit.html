@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+{% load static from staticfiles %}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static 'static/css/bootstrap.min.css' %}">
+    <link href="{% static 'static/css/style_registration.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'public/poisk.ico' %}" rel="shortcut icon" type="image/x-icon" />
+    <title>{{ user }}</title>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 align="center">Редактор пароля и имени</h1>
+
+                 <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label>Имя </label>
+
+                        <input id="user" class="form-control" type="text" name="username"
+                                {% if user != "" %}
+                                    value="{{ user }}"
+                                {% else %}
+                                    placeholder="Введите Имя"
+                                {% endif %}
+                               >
+                        <small  class="form-text text-muted">
+                            Имя пользователя как подпись.
+                        </small>
+                    </div>
+
+
+                     <div class="form-group">
+                         <label>Пароль</label>
+                         <input id="password" type="password" class="form-control REG" name="password" placeholder="Введите пароль">
+                         <small  class="form-text text-muted">
+                             Пароль как подпись.
+                         </small>
+                     </div>
+
+                     <div class="form-group">
+                         <label>Повторите пароль</label>
+                         <input id="password2" type="password" class="form-control REG" name="password2" placeholder="Повторите пароль">
+                         <small  class="form-text text-muted">
+                             Пароль как подпись.
+                         </small>
+                     </div>
+
+                     <input id="btn" class="btn btn-primary btn-block" type="submit" value="Сохранить">
+                </form>
+                    <br><br><br><br><br>
+                    <a href="{% url 'Out' %}"><input id="btn_out" class="btn btn-danger btn-block" type="submit" value="Завершить сеанс"></a>
+                    <a href="{% url 'Home' %}"><input id="btn_back" style="color: white" class="btn btn-info btn-block" type="submit" value="Назад на главную"></a>
+                    <br><br><br><br><br>
+
+                {% if user.is_superuser %}
+
+                    <br><br>
+                    <div align="center">
+                        <h1>
+                            <b id="minutes"></b> : <b id="seconds"></b>
+                        </h1>
+                    </div>
+                    <hr>
+                    <div align="center">
+                        <input align="center" type="button" id="start" value="Start" class="btn btn-secondary">
+                        <input align="center" type="button" id="stop" value="Stop" class="btn btn-secondary">
+                    </div>
+                    <br><br>
+                    <div align="center">
+                        <input type="file" id="type4">
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+            &copy; Dzioba
+    </div>
+
+    <script src="{% static 'static/js/jquery-3.6.0.min.js' %}"></script>
+
+    {% block content %}
+        <script src="{% static 'static/js/register_script.js' %}"></script>
+        <script src="{% static 'static/js/timer.js' %}"></script>
+    {% endblock content %}
+
+</body>
+</html>
